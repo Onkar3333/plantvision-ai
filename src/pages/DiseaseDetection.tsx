@@ -1,13 +1,19 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Upload, Image, Loader2, AlertTriangle, CheckCircle2, XCircle, Sparkles, RefreshCw } from "lucide-react";
+import { Camera, Upload, Image, Loader2, AlertTriangle, CheckCircle2, XCircle, Sparkles, RefreshCw, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlantScans } from "@/hooks/usePlantScans";
 
 const DiseaseDetection = () => {
   const [stage, setStage] = useState<"upload" | "analyzing" | "results">("upload");
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { user } = useAuth();
+  const { saveScan, isSaving } = usePlantScans();
 
   // Simulated detection results
   const results = {
@@ -61,6 +67,20 @@ const DiseaseDetection = () => {
 
   const resetDetection = () => {
     setStage("upload");
+  };
+
+  const handleSaveReport = () => {
+    if (!user) return;
+    
+    saveScan({
+      plant_name: results.plantType,
+      disease_name: results.disease,
+      confidence: results.confidence,
+      symptoms: results.symptoms,
+      treatment: results.treatment.join("\n"),
+      image_url: null,
+      is_healthy: false,
+    });
   };
 
   return (
@@ -313,13 +333,35 @@ const DiseaseDetection = () => {
                   <RefreshCw className="h-5 w-5" />
                   Scan Another
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 btn-neon flex items-center justify-center gap-2"
-                >
-                  Save Report
-                </motion.button>
+                {user ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSaveReport}
+                    disabled={isSaving}
+                    className="flex-1 btn-neon flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Report"
+                    )}
+                  </motion.button>
+                ) : (
+                  <Link to="/auth" className="flex-1">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full btn-neon flex items-center justify-center gap-2"
+                    >
+                      <LogIn className="h-5 w-5" />
+                      Sign in to Save
+                    </motion.button>
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
