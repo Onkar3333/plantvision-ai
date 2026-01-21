@@ -1,24 +1,46 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { Sun, Droplets, Thermometer, Ruler, Calendar, Bug, Heart, Share2, Bookmark } from "lucide-react";
+import { Sun, Droplets, Thermometer, Bug, Heart, Share2, Bookmark } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
 
+// Import plant images
+import monsteraImg from "@/assets/plants/monstera.jpg";
+import fiddleLeafFigImg from "@/assets/plants/fiddle-leaf-fig.jpg";
+import snakePlantImg from "@/assets/plants/snake-plant.jpg";
+import peaceLilyImg from "@/assets/plants/peace-lily.jpg";
+import pothosImg from "@/assets/plants/pothos.jpg";
+import roseBushImg from "@/assets/plants/rose-bush.jpg";
+import lavenderImg from "@/assets/plants/lavender.jpg";
+import succulentImg from "@/assets/plants/succulent.jpg";
+
+const plantImages: Record<number, string> = {
+  1: monsteraImg,
+  2: fiddleLeafFigImg,
+  3: snakePlantImg,
+  4: peaceLilyImg,
+  5: pothosImg,
+  6: roseBushImg,
+  7: lavenderImg,
+  8: succulentImg,
+};
+
 const PlantDetail = () => {
   const { id } = useParams();
+  const plantId = parseInt(id || "1");
   const [activeTab, setActiveTab] = useState("care");
 
   // Simulated plant data
   const plant = {
-    id: 1,
+    id: plantId,
     name: "Monstera Deliciosa",
     scientificName: "Monstera deliciosa Liebm",
     category: "Tropical",
     difficulty: "Easy",
     description: "The Monstera deliciosa is a species of flowering plant native to tropical forests of southern Mexico. Known for its iconic split leaves, it's one of the most popular houseplants worldwide.",
-    image: "🪴",
+    image: plantImages[plantId] || monsteraImg,
     stats: {
       light: "Medium indirect",
       water: "Weekly",
@@ -76,8 +98,12 @@ const PlantDetail = () => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Image */}
-            <div className="h-64 lg:h-auto bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 flex items-center justify-center text-9xl">
-              {plant.image}
+            <div className="h-64 lg:h-96 overflow-hidden">
+              <img 
+                src={plant.image} 
+                alt={plant.name}
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Info */}

@@ -5,6 +5,16 @@ import { Link } from "react-router-dom";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
 
+// Import plant images
+import monsteraImg from "@/assets/plants/monstera.jpg";
+import fiddleLeafFigImg from "@/assets/plants/fiddle-leaf-fig.jpg";
+import snakePlantImg from "@/assets/plants/snake-plant.jpg";
+import peaceLilyImg from "@/assets/plants/peace-lily.jpg";
+import pothosImg from "@/assets/plants/pothos.jpg";
+import roseBushImg from "@/assets/plants/rose-bush.jpg";
+import lavenderImg from "@/assets/plants/lavender.jpg";
+import succulentImg from "@/assets/plants/succulent.jpg";
+
 const PlantLibrary = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -29,7 +39,7 @@ const PlantLibrary = () => {
       season: "All Year",
       light: "Medium",
       water: "Weekly",
-      image: "🪴",
+      image: monsteraImg,
     },
     {
       id: 2,
@@ -39,7 +49,7 @@ const PlantLibrary = () => {
       season: "All Year",
       light: "Bright",
       water: "Weekly",
-      image: "🌿",
+      image: fiddleLeafFigImg,
     },
     {
       id: 3,
@@ -49,7 +59,7 @@ const PlantLibrary = () => {
       season: "All Year",
       light: "Low",
       water: "Bi-weekly",
-      image: "🌱",
+      image: snakePlantImg,
     },
     {
       id: 4,
@@ -59,7 +69,7 @@ const PlantLibrary = () => {
       season: "Spring",
       light: "Low",
       water: "Weekly",
-      image: "🌸",
+      image: peaceLilyImg,
     },
     {
       id: 5,
@@ -69,7 +79,7 @@ const PlantLibrary = () => {
       season: "All Year",
       light: "Low",
       water: "Weekly",
-      image: "🍀",
+      image: pothosImg,
     },
     {
       id: 6,
@@ -79,7 +89,7 @@ const PlantLibrary = () => {
       season: "Summer",
       light: "Full Sun",
       water: "Daily",
-      image: "🌹",
+      image: roseBushImg,
     },
     {
       id: 7,
@@ -89,7 +99,7 @@ const PlantLibrary = () => {
       season: "Summer",
       light: "Full Sun",
       water: "Weekly",
-      image: "💜",
+      image: lavenderImg,
     },
     {
       id: 8,
@@ -99,7 +109,7 @@ const PlantLibrary = () => {
       season: "All Year",
       light: "Bright",
       water: "Bi-weekly",
-      image: "🌵",
+      image: succulentImg,
     },
   ];
 
@@ -197,9 +207,13 @@ const PlantLibrary = () => {
                 whileHover={{ y: -8, scale: 1.02 }}
                 className="glass-card overflow-hidden group cursor-pointer transition-all duration-500 hover:border-primary/50 hover:shadow-glow-md"
               >
-                {/* Plant Image Placeholder */}
-                <div className="h-40 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-6xl">
-                  {plant.image}
+                {/* Plant Image */}
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={plant.image} 
+                    alt={plant.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 </div>
 
                 <div className="p-5">
