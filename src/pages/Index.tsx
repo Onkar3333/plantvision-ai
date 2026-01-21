@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Leaf, Shield, Zap, Camera, Users, BookOpen, Sparkles } from "lucide-react";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
+import heroImage from "@/assets/hero-greenhouse.jpg";
 
 const Index = () => {
   const features = [
@@ -62,14 +63,26 @@ const Index = () => {
       <AnimatedBackground />
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="container px-4">
+      {/* Hero Section with Image */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        {/* Hero Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={heroImage} 
+            alt="Futuristic greenhouse"
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient Overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
+        </div>
+
+        <div className="container px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
+            className="max-w-3xl"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -86,11 +99,11 @@ const Index = () => {
               <span className="gradient-text text-glow">Thriving</span>
             </h1>
 
-            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed">
               Detect diseases instantly, get personalized care recommendations, and join a community of plant lovers. Your garden deserves the best.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/dashboard">
                 <motion.button
                   className="btn-neon text-lg px-8 py-4 flex items-center gap-2 w-full sm:w-auto justify-center"
@@ -113,21 +126,25 @@ const Index = () => {
             </div>
           </motion.div>
 
-          {/* Floating plant visual */}
+          {/* Floating Stats */}
           <motion.div
-            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 opacity-20 pointer-events-none hidden lg:block"
-            animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-            transition={{ duration: 8, repeat: Infinity }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="absolute bottom-10 right-4 lg:right-10 hidden md:block"
           >
-            <Leaf className="h-64 w-64 text-primary" />
-          </motion.div>
-          
-          <motion.div
-            className="absolute top-1/3 right-0 translate-x-1/2 opacity-20 pointer-events-none hidden lg:block"
-            animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
-            transition={{ duration: 6, repeat: Infinity, delay: 1 }}
-          >
-            <Leaf className="h-48 w-48 text-secondary" />
+            <div className="glass-card p-6 backdrop-blur-xl">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-space font-bold gradient-text">98%</div>
+                  <div className="text-xs text-muted-foreground">Accuracy</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-space font-bold gradient-text">50K+</div>
+                  <div className="text-xs text-muted-foreground">Plants</div>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
