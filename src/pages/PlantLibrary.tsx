@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Leaf, Sun, Cloud, Droplets, ChevronDown } from "lucide-react";
+import { Search, Filter, Leaf, Sun, Cloud, Droplets, ChevronDown, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlantFavorites } from "@/hooks/usePlantFavorites";
 
 // Import plant images
 import monsteraImg from "@/assets/plants/monstera.jpg";
@@ -19,6 +21,9 @@ const PlantLibrary = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  
+  const { user } = useAuth();
+  const { isFavorite, toggleFavorite } = usePlantFavorites();
 
   const filters = [
     { id: "all", label: "All Plants" },
@@ -121,6 +126,14 @@ const PlantLibrary = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleFavoriteClick = (e: React.MouseEvent, plantId: number, plantName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (user) {
+      toggleFavorite(String(plantId), plantName);
+    }
+  };
+
   return (
     <div className="min-h-screen pb-10">
       <AnimatedBackground />
@@ -205,8 +218,26 @@ const PlantLibrary = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 whileHover={{ y: -8, scale: 1.02 }}
-                className="glass-card overflow-hidden group cursor-pointer transition-all duration-500 hover:border-primary/50 hover:shadow-glow-md"
+                className="glass-card overflow-hidden group cursor-pointer transition-all duration-500 hover:border-primary/50 hover:shadow-glow-md relative"
               >
+                {/* Favorite Button */}
+                {user && (
+                  <motion.button
+                    onClick={(e) => handleFavoriteClick(e, plant.id, plant.name)}
+                    className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-glass-border hover:border-primary/50 transition-all"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Heart 
+                      className={`h-5 w-5 transition-colors ${
+                        isFavorite(String(plant.id)) 
+                          ? "fill-primary text-primary" 
+                          : "text-muted-foreground hover:text-primary"
+                      }`} 
+                    />
+                  </motion.button>
+                )}
+
                 {/* Plant Image */}
                 <div className="h-48 overflow-hidden">
                   <img 

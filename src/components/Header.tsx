@@ -1,7 +1,8 @@
-import { ArrowLeft, Leaf, Menu, X } from "lucide-react";
+import { ArrowLeft, Leaf, Menu, X, LogOut, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
   showBack?: boolean;
@@ -12,6 +13,7 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut, loading } = useAuth();
 
   const navLinks = [
     { path: "/dashboard", label: "Dashboard" },
@@ -21,6 +23,11 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -91,15 +98,39 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            <Link to="/auth">
-              <motion.button
-                className="hidden sm:block btn-neon text-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Get Started
-              </motion.button>
-            </Link>
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="hidden sm:flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-glass-border">
+                      <User className="h-4 w-4 text-primary" />
+                      <span className="text-sm text-foreground truncate max-w-[120px]">
+                        {user.email?.split('@')[0]}
+                      </span>
+                    </div>
+                    <motion.button
+                      onClick={handleSignOut}
+                      className="btn-glass text-sm flex items-center gap-2"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </motion.button>
+                  </div>
+                ) : (
+                  <Link to="/auth">
+                    <motion.button
+                      className="hidden sm:block btn-neon text-sm"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Get Started
+                    </motion.button>
+                  </Link>
+                )}
+              </>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -122,6 +153,12 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
             className="md:hidden glass-card border-b border-glass-border/50"
           >
             <nav className="container px-4 py-4 flex flex-col gap-2">
+              {user && (
+                <div className="flex items-center gap-2 px-4 py-3 mb-2 rounded-lg bg-primary/10 border border-primary/30">
+                  <User className="h-5 w-5 text-primary" />
+                  <span className="text-sm text-foreground">{user.email}</span>
+                </div>
+              )}
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -136,13 +173,26 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
                   {link.label}
                 </Link>
               ))}
-              <Link 
-                to="/auth" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="btn-neon text-center mt-2"
-              >
-                Get Started
-              </Link>
+              {user ? (
+                <button 
+                  onClick={() => {
+                    handleSignOut();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="btn-glass text-center mt-2 flex items-center justify-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              ) : (
+                <Link 
+                  to="/auth" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn-neon text-center mt-2"
+                >
+                  Get Started
+                </Link>
+              )}
             </nav>
           </motion.div>
         )}

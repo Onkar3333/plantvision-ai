@@ -1,109 +1,90 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { History as HistoryIcon, Calendar, Search, Filter, Eye, Download, Trash2, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { History as HistoryIcon, Calendar, Search, Trash2, CheckCircle, AlertTriangle, Loader2, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlantScans } from "@/hooks/usePlantScans";
 
 const History = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  
+  const { user, loading: authLoading } = useAuth();
+  const { scans, isLoading, deleteScan } = usePlantScans();
 
-  const detections = [
-    {
-      id: 1,
-      plantName: "Monstera Deliciosa",
-      disease: "Leaf Spot Disease",
-      date: "2024-01-15",
-      status: "treated",
-      confidence: 94,
-      image: "🪴",
-    },
-    {
-      id: 2,
-      plantName: "Rose Bush",
-      disease: "Powdery Mildew",
-      date: "2024-01-12",
-      status: "monitoring",
-      confidence: 89,
-      image: "🌹",
-    },
-    {
-      id: 3,
-      plantName: "Fiddle Leaf Fig",
-      disease: "No issues detected",
-      date: "2024-01-10",
-      status: "healthy",
-      confidence: 98,
-      image: "🌿",
-    },
-    {
-      id: 4,
-      plantName: "Peace Lily",
-      disease: "Root Rot Signs",
-      date: "2024-01-08",
-      status: "treated",
-      confidence: 86,
-      image: "🌸",
-    },
-    {
-      id: 5,
-      plantName: "Snake Plant",
-      disease: "No issues detected",
-      date: "2024-01-05",
-      status: "healthy",
-      confidence: 99,
-      image: "🌱",
-    },
-    {
-      id: 6,
-      plantName: "Pothos",
-      disease: "Spider Mite Infestation",
-      date: "2024-01-03",
-      status: "monitoring",
-      confidence: 91,
-      image: "🍀",
-    },
-  ];
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "healthy":
-        return <CheckCircle className="h-5 w-5 text-primary" />;
-      case "treated":
-        return <CheckCircle className="h-5 w-5 text-secondary" />;
-      case "monitoring":
-        return <AlertTriangle className="h-5 w-5 text-accent" />;
-      default:
-        return <XCircle className="h-5 w-5 text-destructive" />;
+  const getStatusIcon = (isHealthy: boolean) => {
+    if (isHealthy) {
+      return <CheckCircle className="h-5 w-5 text-primary" />;
     }
+    return <AlertTriangle className="h-5 w-5 text-destructive" />;
   };
 
-  const getStatusStyles = (status: string) => {
-    switch (status) {
-      case "healthy":
-        return "bg-primary/10 text-primary";
-      case "treated":
-        return "bg-secondary/10 text-secondary";
-      case "monitoring":
-        return "bg-accent/10 text-accent";
-      default:
-        return "bg-destructive/10 text-destructive";
-    }
+  const getStatusStyles = (isHealthy: boolean) => {
+    return isHealthy 
+      ? "bg-primary/10 text-primary" 
+      : "bg-destructive/10 text-destructive";
   };
 
-  const filteredDetections = detections.filter(d => {
-    const matchesSearch = d.plantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.disease.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || d.status === filterStatus;
+  const filteredScans = scans.filter(scan => {
+    const matchesSearch = scan.plant_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (scan.disease_name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const matchesFilter = filterStatus === "all" || 
+      (filterStatus === "healthy" && scan.is_healthy) ||
+      (filterStatus === "issues" && !scan.is_healthy);
     return matchesSearch && matchesFilter;
   });
 
   const stats = {
-    total: detections.length,
-    healthy: detections.filter(d => d.status === "healthy").length,
-    treated: detections.filter(d => d.status === "treated").length,
-    monitoring: detections.filter(d => d.status === "monitoring").length,
+    total: scans.length,
+    healthy: scans.filter(s => s.is_healthy).length,
+    issues: scans.filter(s => !s.is_healthy).length,
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <AnimatedBackground />
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pb-10">
+        <AnimatedBackground />
+        <Header showBack title="Detection History" />
+        
+        <main className="container px-4 pt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-20"
+          >
+            <HistoryIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="font-space text-xl font-semibold text-foreground mb-2">
+              Sign in to view your history
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Create an account to save and track your plant scans
+            </p>
+            <Link to="/auth">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="btn-neon flex items-center gap-2 mx-auto"
+              >
+                <LogIn className="h-5 w-5" />
+                Sign In
+              </motion.button>
+            </Link>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-10">
@@ -129,7 +110,7 @@ const History = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-3 gap-4 mb-8"
         >
           <div className="glass-card p-4 text-center">
             <p className="text-3xl font-space font-bold gradient-text">{stats.total}</p>
@@ -140,12 +121,8 @@ const History = () => {
             <p className="text-sm text-muted-foreground">Healthy</p>
           </div>
           <div className="glass-card p-4 text-center">
-            <p className="text-3xl font-space font-bold text-secondary">{stats.treated}</p>
-            <p className="text-sm text-muted-foreground">Treated</p>
-          </div>
-          <div className="glass-card p-4 text-center">
-            <p className="text-3xl font-space font-bold text-accent">{stats.monitoring}</p>
-            <p className="text-sm text-muted-foreground">Monitoring</p>
+            <p className="text-3xl font-space font-bold text-destructive">{stats.issues}</p>
+            <p className="text-sm text-muted-foreground">Issues Found</p>
           </div>
         </motion.div>
 
@@ -167,7 +144,7 @@ const History = () => {
             />
           </div>
           <div className="flex gap-2">
-            {["all", "healthy", "treated", "monitoring"].map((status) => (
+            {["all", "healthy", "issues"].map((status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
@@ -183,96 +160,99 @@ const History = () => {
           </div>
         </motion.div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-20">
+            <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading your scans...</p>
+          </div>
+        )}
+
         {/* Detection List */}
-        <div className="space-y-4">
-          {filteredDetections.map((detection, index) => (
-            <motion.div
-              key={detection.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.05 }}
-              className="glass-card p-5 hover:border-primary/30 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                {/* Plant Image */}
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-3xl shrink-0">
-                  {detection.image}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-space font-semibold text-foreground truncate">
-                      {detection.plantName}
-                    </h3>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusStyles(detection.status)}`}>
-                      {detection.status}
-                    </span>
+        {!isLoading && (
+          <div className="space-y-4">
+            {filteredScans.map((scan, index) => (
+              <motion.div
+                key={scan.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.05 }}
+                className="glass-card p-5 hover:border-primary/30 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Plant Icon */}
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center shrink-0">
+                    {getStatusIcon(scan.is_healthy)}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-2">{detection.disease}</p>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(detection.date).toLocaleDateString()}
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-space font-semibold text-foreground truncate">
+                        {scan.plant_name}
+                      </h3>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyles(scan.is_healthy)}`}>
+                        {scan.is_healthy ? "Healthy" : "Issue Found"}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-primary">{detection.confidence}%</span> confidence
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {scan.disease_name || "No issues detected"}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(scan.created_at).toLocaleDateString()}
+                      </div>
+                      {scan.confidence && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-primary">{scan.confidence}%</span> confidence
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Status Icon */}
-                <div className="hidden sm:block">
-                  {getStatusIcon(detection.status)}
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
+                  {/* Actions */}
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="p-2 rounded-lg bg-muted/50 hover:bg-primary/20 transition-colors"
-                  >
-                    <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-2 rounded-lg bg-muted/50 hover:bg-primary/20 transition-colors"
-                  >
-                    <Download className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    onClick={() => deleteScan(scan.id)}
                     className="p-2 rounded-lg bg-muted/50 hover:bg-destructive/20 transition-colors"
                   >
                     <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </motion.button>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
 
-          {filteredDetections.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <HistoryIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-space text-xl font-semibold text-foreground mb-2">
-                No detections found
-              </h3>
-              <p className="text-muted-foreground">
-                {searchQuery || filterStatus !== "all" 
-                  ? "Try adjusting your search or filters"
-                  : "Start scanning plants to build your history"
-                }
-              </p>
-            </motion.div>
-          )}
-        </div>
+            {filteredScans.length === 0 && !isLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-20"
+              >
+                <HistoryIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-space text-xl font-semibold text-foreground mb-2">
+                  No detections found
+                </h3>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery || filterStatus !== "all" 
+                    ? "Try adjusting your search or filters"
+                    : "Start scanning plants to build your history"
+                  }
+                </p>
+                <Link to="/detect">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="btn-neon"
+                  >
+                    Scan Your First Plant
+                  </motion.button>
+                </Link>
+              </motion.div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
