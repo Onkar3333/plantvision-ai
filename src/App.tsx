@@ -14,6 +14,7 @@ import CareRecommendations from "./pages/CareRecommendations";
 import NearbyStores from "./pages/NearbyStores";
 import CommunityChat from "./pages/CommunityChat";
 import History from "./pages/History";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/stores" element={<NearbyStores />} />
             <Route path="/community" element={<CommunityChat />} />
             <Route path="/history" element={<History />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

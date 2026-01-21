@@ -102,12 +102,15 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
               <>
                 {user ? (
                   <div className="hidden sm:flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-glass-border">
+                    <Link 
+                      to="/profile"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-glass-border hover:bg-muted/70 transition-colors"
+                    >
                       <User className="h-4 w-4 text-primary" />
                       <span className="text-sm text-foreground truncate max-w-[120px]">
                         {user.email?.split('@')[0]}
                       </span>
-                    </div>
+                    </Link>
                     <motion.button
                       onClick={handleSignOut}
                       className="btn-glass text-sm flex items-center gap-2"
@@ -154,10 +157,14 @@ const Header = ({ showBack = false, title }: HeaderProps) => {
           >
             <nav className="container px-4 py-4 flex flex-col gap-2">
               {user && (
-                <div className="flex items-center gap-2 px-4 py-3 mb-2 rounded-lg bg-primary/10 border border-primary/30">
+                <Link 
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 mb-2 rounded-lg bg-primary/10 border border-primary/30"
+                >
                   <User className="h-5 w-5 text-primary" />
                   <span className="text-sm text-foreground">{user.email}</span>
-                </div>
+                </Link>
               )}
               {navLinks.map((link) => (
                 <Link
