@@ -1,82 +1,22 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { Sun, Droplets, Thermometer, Bug, Heart, Share2, Bookmark } from "lucide-react";
+import { Sun, Droplets, Thermometer, Bug, Heart, Share2, Bookmark, Leaf } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
-
-// Import plant images
-import monsteraImg from "@/assets/plants/monstera.jpg";
-import fiddleLeafFigImg from "@/assets/plants/fiddle-leaf-fig.jpg";
-import snakePlantImg from "@/assets/plants/snake-plant.jpg";
-import peaceLilyImg from "@/assets/plants/peace-lily.jpg";
-import pothosImg from "@/assets/plants/pothos.jpg";
-import roseBushImg from "@/assets/plants/rose-bush.jpg";
-import lavenderImg from "@/assets/plants/lavender.jpg";
-import succulentImg from "@/assets/plants/succulent.jpg";
-
-const plantImages: Record<number, string> = {
-  1: monsteraImg,
-  2: fiddleLeafFigImg,
-  3: snakePlantImg,
-  4: peaceLilyImg,
-  5: pothosImg,
-  6: roseBushImg,
-  7: lavenderImg,
-  8: succulentImg,
-};
+import { getPlantById, formatPrice, indianPlants } from "@/data/indianPlants";
 
 const PlantDetail = () => {
   const { id } = useParams();
   const plantId = parseInt(id || "1");
   const [activeTab, setActiveTab] = useState("care");
 
-  // Simulated plant data
-  const plant = {
-    id: plantId,
-    name: "Monstera Deliciosa",
-    scientificName: "Monstera deliciosa Liebm",
-    category: "Tropical",
-    difficulty: "Easy",
-    description: "The Monstera deliciosa is a species of flowering plant native to tropical forests of southern Mexico. Known for its iconic split leaves, it's one of the most popular houseplants worldwide.",
-    image: plantImages[plantId] || monsteraImg,
-    stats: {
-      light: "Medium indirect",
-      water: "Weekly",
-      temperature: "18-30°C",
-      humidity: "60-80%",
-      height: "Up to 3m",
-      season: "All Year",
-    },
-    care: {
-      watering: "Water when the top inch of soil feels dry. Reduce watering in winter. Avoid overwatering as it can lead to root rot.",
-      light: "Prefers bright, indirect light. Can tolerate lower light conditions but growth will be slower. Avoid direct sunlight which can scorch leaves.",
-      soil: "Use well-draining potting mix. A mix of potting soil, perlite, and orchid bark works well.",
-      feeding: "Feed monthly during growing season (spring-summer) with balanced liquid fertilizer diluted to half strength.",
-    },
-    pests: [
-      { name: "Spider Mites", description: "Small arachnids that create webbing on leaves", treatment: "Wipe leaves with neem oil solution" },
-      { name: "Mealybugs", description: "White cottony masses on stems and leaf joints", treatment: "Remove with alcohol-soaked cotton swabs" },
-      { name: "Scale", description: "Brown bumps on stems and leaves", treatment: "Scrape off and treat with insecticidal soap" },
-    ],
-    priceHistory: [
-      { month: "Jan", price: 25 },
-      { month: "Feb", price: 28 },
-      { month: "Mar", price: 32 },
-      { month: "Apr", price: 35 },
-      { month: "May", price: 38 },
-      { month: "Jun", price: 40 },
-    ],
-    growthChart: [
-      { week: "W1", height: 10 },
-      { week: "W2", height: 12 },
-      { week: "W3", height: 15 },
-      { week: "W4", height: 18 },
-      { week: "W5", height: 22 },
-      { week: "W6", height: 28 },
-    ],
-  };
+  // Get plant data from Indian plants database
+  const plantData = getPlantById(plantId);
+  
+  // Fallback to first plant if not found
+  const plant = plantData || indianPlants[0];
 
   const tabs = [
     { id: "care", label: "Care Guide" },
@@ -97,22 +37,24 @@ const PlantDetail = () => {
           className="glass-card overflow-hidden mb-8"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Image */}
-            <div className="h-64 lg:h-96 overflow-hidden">
-              <img 
-                src={plant.image} 
-                alt={plant.name}
-                className="w-full h-full object-cover"
-              />
+            {/* Image Placeholder with Icon */}
+            <div className="h-64 lg:h-96 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+              <div className="text-center">
+                <Leaf className="h-24 w-24 text-primary/60 mx-auto mb-4" />
+                <p className="text-muted-foreground text-sm">{plant.category}</p>
+              </div>
             </div>
 
             {/* Info */}
             <div className="p-6 lg:p-8">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="font-space text-3xl font-bold text-foreground mb-2">
+                  <h1 className="font-space text-3xl font-bold text-foreground mb-1">
                     {plant.name}
                   </h1>
+                  {plant.hindiName && (
+                    <p className="text-lg text-primary font-medium mb-1">{plant.hindiName}</p>
+                  )}
                   <p className="text-muted-foreground italic">{plant.scientificName}</p>
                 </div>
                 <div className="flex gap-2">
@@ -140,12 +82,15 @@ const PlantDetail = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-4">
                 <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
                   {plant.category}
                 </span>
                 <span className="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
                   {plant.difficulty}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-accent/10 text-accent-foreground text-sm font-medium">
+                  {plant.season}
                 </span>
               </div>
 
@@ -264,20 +209,24 @@ const PlantDetail = () => {
                 className="glass-card p-6"
               >
                 <h3 className="font-space text-lg font-semibold text-foreground mb-4">
-                  Price Trend ($)
+                  Price Trend (₹/kg)
                 </h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={plant.priceHistory}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                       <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))" 
+                        tickFormatter={(value) => `₹${value}`}
+                      />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: "hsl(var(--card))",
                           border: "1px solid hsl(var(--border))",
                           borderRadius: "0.5rem",
                         }}
+                        formatter={(value: number) => [formatPrice(value), "Price"]}
                       />
                       <Line
                         type="monotone"

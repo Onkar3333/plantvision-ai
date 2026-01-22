@@ -6,16 +6,7 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlantFavorites } from "@/hooks/usePlantFavorites";
-
-// Import plant images
-import monsteraImg from "@/assets/plants/monstera.jpg";
-import fiddleLeafFigImg from "@/assets/plants/fiddle-leaf-fig.jpg";
-import snakePlantImg from "@/assets/plants/snake-plant.jpg";
-import peaceLilyImg from "@/assets/plants/peace-lily.jpg";
-import pothosImg from "@/assets/plants/pothos.jpg";
-import roseBushImg from "@/assets/plants/rose-bush.jpg";
-import lavenderImg from "@/assets/plants/lavender.jpg";
-import succulentImg from "@/assets/plants/succulent.jpg";
+import { indianPlants, searchPlants, getPlantsByCategory } from "@/data/indianPlants";
 
 const PlantLibrary = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,110 +18,53 @@ const PlantLibrary = () => {
 
   const filters = [
     { id: "all", label: "All Plants" },
-    { id: "spring", label: "Spring" },
-    { id: "summer", label: "Summer" },
-    { id: "autumn", label: "Autumn" },
-    { id: "winter", label: "Winter" },
-    { id: "indoor", label: "Indoor" },
-    { id: "outdoor", label: "Outdoor" },
+    { id: "crop", label: "Crops" },
+    { id: "vegetable", label: "Vegetables" },
+    { id: "fruit", label: "Fruits" },
+    { id: "herb", label: "Spices & Herbs" },
+    { id: "flower", label: "Flowers" },
+    { id: "medicinal", label: "Medicinal" },
+    { id: "kharif", label: "Kharif Season" },
+    { id: "rabi", label: "Rabi Season" },
   ];
 
-  const plants = [
-    {
-      id: 1,
-      name: "Monstera Deliciosa",
-      category: "Indoor",
-      difficulty: "Easy",
-      season: "All Year",
-      light: "Medium",
-      water: "Weekly",
-      image: monsteraImg,
-    },
-    {
-      id: 2,
-      name: "Fiddle Leaf Fig",
-      category: "Indoor",
-      difficulty: "Medium",
-      season: "All Year",
-      light: "Bright",
-      water: "Weekly",
-      image: fiddleLeafFigImg,
-    },
-    {
-      id: 3,
-      name: "Snake Plant",
-      category: "Indoor",
-      difficulty: "Easy",
-      season: "All Year",
-      light: "Low",
-      water: "Bi-weekly",
-      image: snakePlantImg,
-    },
-    {
-      id: 4,
-      name: "Peace Lily",
-      category: "Indoor",
-      difficulty: "Easy",
-      season: "Spring",
-      light: "Low",
-      water: "Weekly",
-      image: peaceLilyImg,
-    },
-    {
-      id: 5,
-      name: "Pothos",
-      category: "Indoor",
-      difficulty: "Easy",
-      season: "All Year",
-      light: "Low",
-      water: "Weekly",
-      image: pothosImg,
-    },
-    {
-      id: 6,
-      name: "Rose Bush",
-      category: "Outdoor",
-      difficulty: "Medium",
-      season: "Summer",
-      light: "Full Sun",
-      water: "Daily",
-      image: roseBushImg,
-    },
-    {
-      id: 7,
-      name: "Lavender",
-      category: "Outdoor",
-      difficulty: "Easy",
-      season: "Summer",
-      light: "Full Sun",
-      water: "Weekly",
-      image: lavenderImg,
-    },
-    {
-      id: 8,
-      name: "Succulent",
-      category: "Indoor",
-      difficulty: "Easy",
-      season: "All Year",
-      light: "Bright",
-      water: "Bi-weekly",
-      image: succulentImg,
-    },
-  ];
-
-  const filteredPlants = plants.filter(plant => {
-    const matchesSearch = plant.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === "all" || 
-      plant.season.toLowerCase().includes(activeFilter) ||
-      plant.category.toLowerCase() === activeFilter;
-    return matchesSearch && matchesFilter;
-  });
+  const filteredPlants = (() => {
+    let plants = indianPlants;
+    
+    // Apply search filter
+    if (searchQuery) {
+      plants = searchPlants(searchQuery);
+    }
+    
+    // Apply category filter
+    if (activeFilter !== "all") {
+      plants = plants.filter(plant => 
+        plant.type === activeFilter ||
+        plant.category.toLowerCase() === activeFilter ||
+        plant.season.toLowerCase().includes(activeFilter)
+      );
+    }
+    
+    return plants;
+  })();
 
   const handleFavoriteClick = (e: React.MouseEvent, plantId: number, plantName: string) => {
     e.preventDefault();
     e.stopPropagation();
     if (user) {
       toggleFavorite(String(plantId), plantName);
+    }
+  };
+
+  const getCategoryColor = (type: string) => {
+    switch (type) {
+      case "crop": return "bg-amber-500/10 text-amber-600";
+      case "vegetable": return "bg-green-500/10 text-green-600";
+      case "fruit": return "bg-orange-500/10 text-orange-600";
+      case "herb": return "bg-purple-500/10 text-purple-600";
+      case "flower": return "bg-pink-500/10 text-pink-600";
+      case "medicinal": return "bg-teal-500/10 text-teal-600";
+      default: return "bg-primary/10 text-primary";
     }
   };
 
@@ -147,10 +81,10 @@ const PlantLibrary = () => {
           className="mb-8"
         >
           <h1 className="font-space text-3xl font-bold text-foreground mb-2">
-            Explore <span className="gradient-text">Plants</span>
+            Indian <span className="gradient-text">Plants & Crops</span>
           </h1>
           <p className="text-muted-foreground">
-            Discover care guides for thousands of plant species
+            Explore {indianPlants.length}+ Indian plants, crops, vegetables, and medicinal herbs
           </p>
         </motion.div>
 
@@ -165,7 +99,7 @@ const PlantLibrary = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search plants..."
+              placeholder="Search plants in English or Hindi..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-2xl bg-muted/50 border border-glass-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
@@ -209,6 +143,15 @@ const PlantLibrary = () => {
           </AnimatePresence>
         </motion.div>
 
+        {/* Results Count */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-sm text-muted-foreground mb-4"
+        >
+          Showing {filteredPlants.length} plants
+        </motion.p>
+
         {/* Plants Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredPlants.map((plant, index) => (
@@ -216,7 +159,7 @@ const PlantLibrary = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: Math.min(index * 0.03, 0.3) }}
                 whileHover={{ y: -8, scale: 1.02 }}
                 className="glass-card overflow-hidden group cursor-pointer transition-all duration-500 hover:border-primary/50 hover:shadow-glow-md relative"
               >
@@ -238,23 +181,25 @@ const PlantLibrary = () => {
                   </motion.button>
                 )}
 
-                {/* Plant Image */}
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={plant.image} 
-                    alt={plant.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                {/* Plant Icon Placeholder */}
+                <div className="h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                  <div className="text-center">
+                    <Leaf className="h-16 w-16 text-primary/40 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-xs text-muted-foreground">{plant.category}</p>
+                  </div>
                 </div>
 
                 <div className="p-5">
-                  <h3 className="font-space text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-space text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                     {plant.name}
                   </h3>
+                  {plant.hindiName && (
+                    <p className="text-sm text-primary/80 mb-2">{plant.hindiName}</p>
+                  )}
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                      {plant.category}
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(plant.type)}`}>
+                      {plant.type.charAt(0).toUpperCase() + plant.type.slice(1)}
                     </span>
                     <span className="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium">
                       {plant.difficulty}
@@ -264,15 +209,15 @@ const PlantLibrary = () => {
                   <div className="grid grid-cols-3 gap-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Sun className="h-4 w-4 text-primary" />
-                      <span className="truncate">{plant.light}</span>
+                      <span className="truncate text-xs">{plant.light}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Droplets className="h-4 w-4 text-secondary" />
-                      <span className="truncate">{plant.water}</span>
+                      <span className="truncate text-xs">{plant.water}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Cloud className="h-4 w-4 text-accent" />
-                      <span className="truncate">{plant.season}</span>
+                      <span className="truncate text-xs">{plant.season.split(' ')[0]}</span>
                     </div>
                   </div>
                 </div>
