@@ -6,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
 import { getPlantById, formatPrice, indianPlants } from "@/data/indianPlants";
+import { getPlantImage } from "@/data/plantImages";
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -37,12 +38,22 @@ const PlantDetail = () => {
           className="glass-card overflow-hidden mb-8"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Image Placeholder with Icon */}
-            <div className="h-64 lg:h-96 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-              <div className="text-center">
-                <Leaf className="h-24 w-24 text-primary/60 mx-auto mb-4" />
-                <p className="text-muted-foreground text-sm">{plant.category}</p>
-              </div>
+            {/* Plant Image */}
+            <div className="h-64 lg:h-96 overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
+              {getPlantImage(plant.id) ? (
+                <img 
+                  src={getPlantImage(plant.id)} 
+                  alt={plant.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <Leaf className="h-24 w-24 text-primary/60 mx-auto mb-4" />
+                    <p className="text-muted-foreground text-sm">{plant.category}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Info */}

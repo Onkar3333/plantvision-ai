@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlantFavorites } from "@/hooks/usePlantFavorites";
 import { indianPlants, searchPlants, getPlantsByCategory } from "@/data/indianPlants";
+import { getPlantImage } from "@/data/plantImages";
 
 const PlantLibrary = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -181,12 +182,22 @@ const PlantLibrary = () => {
                   </motion.button>
                 )}
 
-                {/* Plant Icon Placeholder */}
-                <div className="h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                  <div className="text-center">
-                    <Leaf className="h-16 w-16 text-primary/40 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                    <p className="text-xs text-muted-foreground">{plant.category}</p>
-                  </div>
+                {/* Plant Image */}
+                <div className="h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
+                  {getPlantImage(plant.id) ? (
+                    <img 
+                      src={getPlantImage(plant.id)} 
+                      alt={plant.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <Leaf className="h-16 w-16 text-primary/40 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="text-xs text-muted-foreground">{plant.category}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-5">
