@@ -3,6 +3,7 @@ import { Sparkles, Droplets, Bug, Leaf, AlertCircle, ThumbsUp, ShoppingCart } fr
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
 import WeatherCareTips from "@/components/WeatherCareTips";
+import NotificationSettings from "@/components/NotificationSettings";
 
 const CareRecommendations = () => {
   const recommendations = {
@@ -108,6 +109,9 @@ const CareRecommendations = () => {
             Personalized recommendations based on your plant collection
           </p>
         </motion.div>
+
+        {/* Notification Settings */}
+        <NotificationSettings />
 
         {/* Weather-Based Care Tips */}
         <WeatherCareTips />
