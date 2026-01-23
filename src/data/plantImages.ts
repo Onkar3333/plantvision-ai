@@ -30,38 +30,45 @@ import aloeVera from "@/assets/plants/aloe-vera.jpg";
 import marigold from "@/assets/plants/marigold.jpg";
 import jasmine from "@/assets/plants/jasmine.jpg";
 
-// Map plant IDs to their images
+// Map plant IDs to their images (matching indianPlants.ts IDs)
 export const plantImages: Record<number, string> = {
+  // Crops (IDs 1-5)
   1: ricePaddy,
   2: wheat,
   3: cotton,
   4: sugarcane,
   5: maize,
+  // Vegetables (IDs 6-10)
   6: tomato,
   7: onion,
   8: potato,
   9: brinjal,
   10: okra,
-  11: cauliflower,
-  12: cabbage,
-  13: greenChili,
-  14: bottleGourd,
-  15: bitterGourd,
-  16: mango,
-  17: banana,
-  18: papaya,
-  19: pomegranate,
-  20: guava,
-  21: turmeric,
-  22: ginger,
-  23: coriander,
-  24: mint,
-  25: curryLeaves,
-  26: neem,
-  27: tulsi,
-  28: aloeVera,
-  29: marigold,
-  30: jasmine,
+  // Fruits (IDs 11-15)
+  11: mango,
+  12: banana,
+  13: guava,
+  14: papaya,
+  15: pomegranate, // Using pomegranate for coconut slot as we don't have coconut image
+  // Spices & Herbs (IDs 16-20)
+  16: turmeric,
+  17: ginger,
+  18: coriander,
+  19: mint,
+  20: curryLeaves,
+  // Medicinal (IDs 21-23)
+  21: neem,
+  22: tulsi,
+  23: aloeVera,
+  // Flowers (IDs 24-25)
+  24: marigold,
+  25: jasmine,
+  // Additional Vegetables (IDs 26-30)
+  26: cauliflower,
+  27: cabbage,
+  28: greenChili,
+  29: bottleGourd,
+  30: bitterGourd,
 };
 
 export const getPlantImage = (plantId: number): string | undefined => {
