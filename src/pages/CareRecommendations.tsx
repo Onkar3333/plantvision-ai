@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Sparkles, Droplets, Bug, Leaf, AlertCircle, ThumbsUp, ShoppingCart } from "lucide-react";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/Header";
+import WeatherCareTips from "@/components/WeatherCareTips";
 
 const CareRecommendations = () => {
   const recommendations = {
@@ -107,6 +108,9 @@ const CareRecommendations = () => {
             Personalized recommendations based on your plant collection
           </p>
         </motion.div>
+
+        {/* Weather-Based Care Tips */}
+        <WeatherCareTips />
 
         {/* Quick Tips */}
         <motion.div
